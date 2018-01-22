@@ -13,7 +13,7 @@ for Scalable Multicore Systems \cite{baumann2009multikernel}}
 \textsl{3--5 sentences. Briefly summarise the {\bf contributions} of the paper, i.e.,~what it adds over the state of the art. Paraphrase and extract the essentials rather than simply copying chunks of text. Be objective; later sections allow for your own opinion.}
 %% Type your text below
 
-A few years into the wide-scale availability of multicore processors in the consumer market, constraints imposed by conventional shared-memory kernel architectures became apparent in high-performance applications. After demonstrating the negative performance impacts of these constraints on shared state multiprocessing, the authors proposed an alternative kernel model based on inter-core message passing. The implemented \emph{Barrelfish} multikernel achieved better scaling performance than conventional kernels in selected test cases. The authors also suggested directions of future work to reduce the complexity in porting conventional kernel applications, and to improve the multikernel's networking and file system capabilities.
+A few years into the wider availability of multicore processors in the consumer market, constraints imposed by conventional shared-memory kernel architectures became apparent in high-performance applications. After demonstrating the negative performance impacts of these constraints on shared state multiprocessing, the authors proposed an alternative kernel model based on inter-core message passing. The implemented \emph{Barrelfish} multikernel achieved better scaling performance than conventional kernels in selected test cases. The authors also suggested directions of future work to reduce the complexity in porting conventional kernel applications, and to improve the multikernel's networking and file system capabilities.
 
 \section*{Pros and Cons}
 \textsl{6 bullets. Succinctly state three positives and three negatives of the paper.}
@@ -22,7 +22,7 @@ A few years into the wide-scale availability of multicore processors in the cons
 I believe that the paper has the following positive features:
 \begin{itemize}
 	\item The authors made very accurate observations on the state of multicore support in operating systems of the time, and clearly identified the disadvantages of shared memory kernels running on increasing number of processor cores.
-	\item The paper presented benchmarking results on data updates under both shared-memory and message passing concurrency, as a clear motivation to develop a full multikernel based on inter-core message passing.
+	\item The paper presented benchmarking results on data updates under both shared-memory and message passing concurrency, as a clear motivation to develop a multikernel based on inter-core message passing.
 	\item The authors identified negative effects of some of their design decisions; and where possible, provided justifications on why these decisions can benefit the multikernel overall, or what they would have done in hindsight.
 \end{itemize}
 
@@ -39,9 +39,9 @@ I believe that the paper has the following negative features:
 
 Modern general-purpose operating systems are expected to work on a wide range of hardware systems, each with opportunities for optimisation that require the OS to specifically adapt for, resulting in increasingly complex operating system designs. The authors believe that a fundamental redesign of shared-memory kernels in these operating systems is required.
 
-Hardware development also means that optimisations for heterogeneous cores and taking advantage of reduced cost in message passing between cores are now possible. The authors believe that these features can be better exploited with a message passing kernel model which provides more self-containing cores.
+Hardware development also means that it is now possible to optimise for heterogeneous cores and take advantage of reduced cost in message passing between cores. The authors believe that these features can be better exploited with a message passing kernel model to create more self-containing cores.
 
-Earlier researches \cite{chaves1993kernel, lauer1979duality} have already identified the potential of (but not yet implemented) message passing kernels. In implementing an operational multikernel, authors took inspirations from prior OS research \cite{liedtke1995micro, gamsa1999tornado, tanenbaum1985distributed}. They also identified some complementary work tackling similar problems with different methods \cite{shelepov2008scheduling, wentzlaff2009factored}.
+Earlier researches \cite{chaves1993kernel, lauer1979duality} had already identified the potential of (but not yet implemented) message passing kernels. In implementing an operational multikernel, authors took inspirations from prior OS research \cite{liedtke1995micro, gamsa1999tornado, tanenbaum1985distributed}. They also identified some complementary work tackling similar problems with different methods \cite{shelepov2008scheduling, wentzlaff2009factored}.
 
 \section*{The Solution/Approach}
 \textsl{5--10 sentences. What have they done? How does it address the issues set out above? How is it unique and/or innovative (if, indeed, it is)? Give details, again using the paper as the source but again, not just copying text. Instead, focus on paraphrasing/synopsising, and extracting the essential details.}
@@ -51,14 +51,14 @@ The authors seek to construct a message passing multikernel which scales better 
 
 The use of explicit inter-core communication allows the OS to provide isolation and resource management on heterogeneous cores, and enable more efficient use of waiting time. A hardware-neutral OS structure reduces the cost of constantly optimising the OS for new hardware-specific features. The move from shared to replicated states allows maintaining consistency through more efficient and lower latency message passing, and enables limited shared states to be implemented in the future.
 
-On the implementation aspect, the OS is split into a privileged-mode CPU driver and a user-mode monitor on each core. The former provides traditional critical kernel features such as protection, scheduling and access control; while the latter is responsible for inter-core communication and coordinating global consistency. Dispatcher objects are used to represent processes on each core, each responsible for scheduling threads on the core. Global consistency of memory and shared address space still have to be maintained between cores, resulting in complexities in implementation and performance. Knowledge of underlying hardware is still used to provide topology-aware message passing and memory allocation.
+On the implementation aspect, the OS is split into a privileged-mode CPU driver and a user-mode monitor on each core. The former provides traditional critical kernel features such as protection, scheduling and access control; while the latter is responsible for inter-core communication and coordinating global consistency. Dispatcher objects are used to represent processes on each core, each responsible for scheduling process threads on the core. Global consistency of memory and shared address space still have to be maintained between cores, resulting in complexities in implementation and performance. Knowledge of underlying hardware is still needed to provide topology-aware message passing and memory allocation.
 
 
 \section*{Evaluation}
 \textsl{3--4 sentences. How do they evaluate their work? What questions does their evaluation set out to answer? What does their evaluation say about the strengths and weaknesses of their system? What is your opinion of the strengths and weaknesses of the evaluation itself?  Give highlights, not a point by point reproduction of the evaluation section(s). In rare cases, systems papers may not have any evaluation, in which case write `N/A' below.}
 %% Type your text below
 
-The evaluations performed were to address two primary areas of concern: whether the message passing multikernel can achieve comparable or better performance than shared-memory kernels at the time; and whether the new multikernel enables greater scaling potential in view of future hardware development. 
+The evaluations performed were to address two primary areas of concern: whether the message passing multikernel can achieve comparable or better performance than shared-memory kernels at the time; and whether the new multikernel enabled greater scaling potential in view of future hardware development. 
 
 The performance of typical coordinated memory operations, compute-bound operations and heavy IO workloads were evaluated in comparison with shared-memory kernels'. The multikernel outperformed shared-memory kernels at greater number of cores, as well as in IO testing, owing to its scaling advantages. Other tests revealed comparable or worse performance from the multikernel due to its somewhat increased single-core overhead and limited optimisation based on hardware knowledge. 
 

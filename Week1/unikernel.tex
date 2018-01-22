@@ -12,7 +12,7 @@
 \textsl{3--5 sentences. Briefly summarise the {\bf contributions} of the paper, i.e.,~what it adds over the state of the art. Paraphrase and extract the essentials rather than simply copying chunks of text. Be objective; later sections allow for your own opinion.}
 %% Type your text below
 
-Mirage is an OCaml-based \emph{unikernel} software stack targeting the Xen hypervisor which enables the deployment of high performance, efficient, and type-safe cloud applications. By running OCaml applications in single-purpose VM appliances, and implementing static configuration, compile-time code specialisation, and extensive protection mechanisms, prototype web applications could ran with better performance and safer in comparison with their equivalent Linux applications. Drawbacks of the extensive OCaml re-implementation requirements and the potential of extending Mirage to below-hypervisor level were also discussed.
+Mirage is a \emph{unikernel} software stack targeting the Xen hypervisor that enables the deployment of high performance, efficient, and type-safe OCaml applications. Executing OCaml applications in single-purpose VM appliances, Mirage implements static configuration, compile-time code specialisation, and runtime protection mechanisms. During evaluation, prototype web applications under Mirage achieved comparable or better performance than their equivalent Linux applications, without sacrificing type-safety and security. Drawbacks of requiring extensive OCaml code re-implementation were also discussed, along with the potential of extending Mirage to below-hypervisor level, including on top of the Barrelfish multikernel \cite{baumann2009multikernel}.
 
 \section*{Pros and Cons}
 \textsl{6 bullets. Succinctly state three positives and three negatives of the paper.}
@@ -20,51 +20,51 @@ Mirage is an OCaml-based \emph{unikernel} software stack targeting the Xen hyper
 
 I believe that the paper has the following positive features:
 \begin{itemize}
-	\item The paper presented features and low level implementation details of Mirage in a very comprehensible manner, making excellent use of abstract diagrams. 
-	\item The authors provided detailed and reasonable justifications on trade-offs taken between re-implementation complexity and performance or security improvement measures.
-	\item The performance improvement provided by Mirage's minimal compilation and runtime environment was well-supported through testing a range of real application equivalents implemented in OCaml, with small variations explained through insights into implementation details.
+	\item The paper presented the features and low level implementation details of Mirage in a very comprehensible manner, making effective use of abstract diagrams. 
+	\item The authors provided detailed and well-reasoned justifications on trade-offs made between reducing re-implementation complexity, improving performance, and ensuring security.
+	\item The performance improvement provided by Mirage's minimal compilation and runtime environment was well-demonstrated through benchmarking a range of realistic application prototypes implemented in OCaml, with small variations in performance explained through insights on implementation details.
 \end{itemize}
 
 I believe that the paper has the following negative features:
 \begin{itemize}
-	\item The OCaml re-implementation complexity can be better measured through a case study estimating the cost of re-implementing the full features of a typical Linux application.
-	\item While software written in statically-typed compiled language are easier to re-implement for Mirage, a vast amount of web applications are written in interpreted languages \cite{prokhorenko2016web}. As a software stack targeting cloud applications, it would be useful to include considerations on the porting complexity from interpreted languages.
-	\item When implementing a prototype DNS server, manual intervention was necessary to improve Mirage's poor performance through request memorisation. More investigations on whether the same was necessary in other applications to achieve the same level of performance could reveal any language or infrastructure features hindering the performance.
+	\item The OCaml re-implementation complexity can be better measured practically through a case study estimating the cost of re-implementing the full features of a typical Linux application.
+	\item While software written in statically-typed compiled language are easier to re-implement for Mirage, a significant amount of web applications are written in interpreted languages \cite{prokhorenko2016web}. As a software stack targeting cloud applications, it would be useful to include considerations on the complexity of porting code written in interpreted languages.
+	\item When implementing a prototype DNS server, manual intervention was necessary to improve Mirage's poor performance due to lack of request memorisation. More investigations on whether the same was necessary for other applications to achieve the same level of performance could reveal any hindering language or stack design features.
 \end{itemize}
 
 \section*{The Problem/Motivation}
 \textsl{1--2 sentences per question. What is the motivation for the work, or the problem being solved? Why is it important? If there is prior art, how was it insufficient? If the problem had not previously been solved, why not?}
 %% Type your text below
 
-Modern operating system kernels are large, and contain libraries and features not necessarily required by individual applications. Past efforts to resolve this problem include Drawbridge \cite{porter2011rethinking}, Singularity \cite{hunt2007singularity}, and Libra \cite{ammons2007libra}. But there was in lack of a more self-contained, type-safe solution that also achieves better performance than standard Linux applications. 
+Modern operating system kernels are large, and contain libraries and features not necessarily required by individual applications. Past efforts to resolve this issue included Drawbridge \cite{porter2011rethinking}, Singularity \cite{hunt2007singularity}, and Libra \cite{ammons2007libra}. But between them it was still in lack of a fully self-contained, type-safe solution that also achieves comparable or better performance than conventional Linux applications. 
 
-Existing self-contained software stacks \cite{engler1995exokernel} \cite{leslie1996design} serving similar purposes often encounter hardware compatibility issues, therefore a solution targeting a cross-platform system was desired. SPIN \cite{bershad1995extensibility} was named as a similar idea to Mirage, but the Modula-3 language used by the former is quite outdated for re-implementing modern software.
+Existing self-contained software stacks \cite{engler1995exokernel} \cite{leslie1996design} serving similar purposes often encounter hardware compatibility issues, therefore a solution targeting a cross-platform system was desired. SPIN \cite{bershad1995extensibility} was named as a similar idea to Mirage, but the Modula-3 language used by SPIN was quite outdated for re-implementing modern software.
 
 \section*{The Solution/Approach}
 \textsl{5--10 sentences. What have they done? How does it address the issues set out above? How is it unique and/or innovative (if, indeed, it is)? Give details, again using the paper as the source but again, not just copying text. Instead, focus on paraphrasing/synopsising, and extracting the essential details.}
 %% Type your text below
 
-Mirage is designed to operate in a typical hypervisor VM environment, for which it statically define as much of the runtime environment as possible to both reduce cost and to improve performance and type-safety. Unnecessary features are eliminated at compile-time from the kernel, and the code can be optionally sealed to prevent code injection. Compile-time address space randomisation is also used to improve security.
+Mirage is designed to operate in a typical hypervisor VM environment, for which it statically define as much of the runtime environment as possible to both reduce cost and to improve performance and type-safety. Unnecessary features are eliminated from the kernel at compile-time, and the code can be optionally sealed with hypervisor support to prevent code injection. Compile-time address space randomisation is also used to improve security.
 
-Mirage was implemented in OCaml, a statically-typed high performance language suitable for its design goals. It uses Xen-oriented runtime memory management and Lwt cooperative threading. Interactions with device drivers were implemented through shared memory rings, and type-safe I/O handling for networking and storage were used.
+Mirage is implemented in OCaml, a statically-typed high-performance language suitable for its design goals. It uses Xen-oriented runtime memory management and \emph{Lwt} cooperative threading. Interactions with device drivers were implemented through shared memory rings, and type-safe I/O handling for networking and storage was used.
 
-The resulting self-contained runtime environment provides a high level of security and stability assurance, while also provides excellent cross-platform compatibility by building on top of the Xen hypervisor.
+The resulting self-contained runtime environment provides a high level of security and stability assurance against code injections and memory corruptions, while also providing excellent cross-platform compatibility by building on top of the Xen hypervisor.
 
 \section*{Evaluation}
 \textsl{3--4 sentences. How do they evaluate their work? What questions does their evaluation set out to answer? What does their evaluation say about the strengths and weaknesses of their system? What is your opinion of the strengths and weaknesses of the evaluation itself?  Give highlights, not a point by point reproduction of the evaluation section(s). In rare cases, systems papers may not have any evaluation, in which case write `N/A' below.}
 %% Type your text below
 
-A staged evaluation process was used to measure and compare the performance of Mirage at different levels. Micro-benchmarking against the same OCaml code running on bare-metal and Xen-based Linux demonstrated Mirage's improved performance through minimal compilation and maintaining a stable runtime environment. It was also shown that Mirage suffers from a minimal overhead in network performance. Prototypes of realistic applications were also constructed, with Mirage achieving comparable or better performance than the prototypes' Linux equivalents. Mirage's significantly reduced binary size through minimal compilation and dead code elimination was also observed.
+A staged evaluation process was used to measure and compare the performance of Mirage at different levels of abstraction. Mirage's performance improvements resulting from minimal compilation and maintaining a stable runtime environment were demonstrated through micro-benchmarking against bare-metal and Xen-hosted Linux. It was also shown that Mirage suffered from a minimal overhead in network performance as a result of type-safety. Prototypes of realistic applications were also constructed and benchmarked, with Mirage achieving comparable or better performance than the prototypes' Linux equivalents. Mirage's significantly reduced binary achieved through minimal compilation and dead code elimination was also observed.
 
-Therefore, in the views of the author, it was apparent that Mirage satisfied their design goals. The practicalities of porting existing applications require some further discussion as followed in the next section. 
+Therefore, in the view of the authors, Mirage's performance satisfied their design goals. The practicality of porting existing applications requires some further discussion. 
 
 \section*{Your Opinion}
 \textsl{At least 3 sentences. This is the fun part where you get to judge both the paper and the work it reports! Is the motivation convincing? The problem important? The approach a good or bad idea?  Why? Which specific things annoyed you, or you thought were cool, or cool-but-flawed? Justify your opinions! Make an argument which will convince others of your opinion.}
 %% Type your text below
 
-In developing Mirage, the authors took an ``extreme position'' in structuring the software stack, requiring existing codebases to be re-implemented in OCaml for integration into Mirage. This approach has its significant advantages being a fresh, type-safety-oriented approach that can provide a very high level of runtime safety assurance, but also bears noticeable disadvantages in re-implementation complexity that comes as a natural trade-off. 
+In developing Mirage, the authors took an ``extreme position'' in their design of the software stack, requiring existing codebases to be re-implemented in OCaml for integration into Mirage. Being a minimisation and type-safety-oriented approach that can provide a very high level of runtime security assurance, this approach has its significantly advantages, but also bears noticeable disadvantages in re-implementation complexity that comes as a natural trade-off. 
 
-However, in the particular context of cloud applications, it may be difficult for the OCaml-based architecture to gain interest of the vast amount of interpreted language developers in the field. Although the authors did describe a tiered workflow in which a system application can be adapted for running on Mirage. With the development of engineering tools that can automate some of the process, Mirage will stand a greater chance at becoming a commercial reality.
+However, in the particular context of cloud applications, it may be difficult for the OCaml-based architecture to gain interest from many interpreted language developers in the industry. The authors did describe a tiered workflow through which a system application written in another language can be gradually ported for running on Mirage. With the development of engineering tools that can automate some of the porting process, Mirage will stand a greater chance at becoming a commercial reality.
 
 \section*{Questions for the Authors}
 \textsl{Finally, imagine you're attending a talk about this paper given by one of the authors. Give at least 2 questions that you would like to ask, specific to the paper and the research it reports.}
@@ -72,8 +72,8 @@ However, in the particular context of cloud applications, it may be difficult fo
 %% Type your text below
 
 \begin{itemize}
-	\item While OCaml is a statically-typed, high performance language that suits the purpose of Mirage very well, it can contain language-level bugs that impact memory management from time to time, such as the \emph{Scanf.fscanf} memory leak a few years ago \cite{ocamlmemoryleak}. What precautions have been or can be taken in Mirage to mitigate their effects?
-	\item Statically-typed compiled languages do not find a great deal of success in the modern web application market. Do you think the increased complexity in porting dynamically-typed interpreted languages could hinder the success of software stacks like Mirage?
+	\item While OCaml is a statically-typed, high performance language that suits the purpose of Mirage very well, it can contain unknown language-level bugs that impact statically-allocated memory from time to time, such as the \emph{Scanf.fscanf} memory leak a few years ago \cite{ocamlmemoryleak}. What precautions have been or can be taken in Mirage to mitigate the effects of unknown memory management bugs?
+	\item Statically-typed compiled languages do not enjoy a great deal of success in the modern web application market. Do you think the increased complexity in porting dynamically-typed interpreted languages could hinder the success of unikernel software stacks like Mirage?
 \end{itemize}
 
 \bibliographystyle{IEEEtran}
