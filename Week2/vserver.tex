@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+\usepackage{a4wide,parskip}
+\usepackage{hyperref}
+\begin{document}
+
+%% Replace PAPERTITLE below with the paper title
+\title{Paper Review Form (1000 words maximum)\\
+  \emph{cs940}: Container-based operating system virtualization: a scalable, high-performance alternative to hypervisors \cite{soltesz2007container}}
+\maketitle
+
+\section*{Paper Summary}
+\textsl{3--5 sentences. Briefly summarise the {\bf contributions} of the paper, i.e.,~what it adds over the state of the art. Paraphrase and extract the essentials rather than simply copying chunks of text. Be objective; later sections allow for your own opinion.}
+%% Type your text below
+
+In this paper, the authors presented a thorough description of the container-based virtualization system Linux-VServer, which seeks to improve guest performance at the cost of reduced guest isolation and flexibility. Designed for use by compute farms and hosting organisations, VServer's container-based operating system (COS) isolates VMs at the system call layer, exposing the application binary interface (ABI) rather than a traditional hypervisor interface to guest systems. Resource and security isolation, as well as file system unification were implemented to achieve similar effects to that of a hypervisor. Benchmarks performed by the author found that VServer outperformed Xen in performance and achieved reasonable isolation.
+
+\section*{Pros and Cons}
+\textsl{6 bullets. Succinctly state three positives and three negatives of the paper.}
+%% Type your text below
+
+I believe that the paper has the following positive features:
+\begin{itemize}
+	\item Along with performance advantages identified in VServer's design, the authors did present some shortcomings in comparison with Xen for completeness, such as increased interface complexity of COS.
+	\item Discussing the codebase, the authors evaluated both the number of lines of code \emph{and} the context of these changes (new and modified kernel files), presenting a more complete picture of the complexity of the software-engineering task.
+	\item Copy-on-write inodes was a novel idea taking full advantage of the straightforward file system offered by a COS, which is somewhat harder to achieve on file level on a hypervisor (e.g. Xen on LVM).
+\end{itemize}
+
+I believe that the paper has the following negative features:
+\begin{itemize}
+	\item The argument that host VM in Xen-style hypervisors being the weakest link in fault isolation is somewhat questionable, as the large number of new and modified kernel modules in VServer are equally likely to contain bugs, in addition to a more grave concern of vulnerability in both systems.
+	\item The micro-benchmarks performed by the authors were selectively presented in the table to highlight configurations where Xen performed significantly worse, with no additional information on overall scores.
+	\item A majority of benchmarks performed did not account for a typical hypervisor/COS computation workload that would involve different guests utilising all of CPU, memory, and I/O. The only typical-like workload performed was kernel compilation, in which Xen achieved almost identical performance, drawing debate on the fairness of benchmarks.
+\end{itemize}
+
+\section*{The Problem/Motivation}
+\textsl{1--2 sentences per question. What is the motivation for the work, or the problem being solved? Why is it important? If there is prior art, how was it insufficient? If the problem had not previously been solved, why not?}
+%% Type your text below
+
+
+\section*{The Solution/Approach}
+\textsl{5--10 sentences. What have they done? How does it address the issues set out above? How is it unique and/or innovative (if, indeed, it is)? Give details, again using the paper as the source but again, not just copying text. Instead, focus on paraphrasing/synopsising, and extracting the essential details.}
+%% Type your text below
+
+
+\section*{Evaluation}
+\textsl{3--4 sentences. How do they evaluate their work? What questions does their evaluation set out to answer? What does their evaluation say about the strengths and weaknesses of their system? What is your opinion of the strengths and weaknesses of the evaluation itself?  Give highlights, not a point by point reproduction of the evaluation section(s). In rare cases, systems papers may not have any evaluation, in which case write `N/A' below.}
+%% Type your text below
+
+
+\section*{Your Opinion}
+\textsl{At least 3 sentences. This is the fun part where you get to judge both the paper and the work it reports! Is the motivation convincing? The problem important? The approach a good or bad idea?  Why? Which specific things annoyed you, or you thought were cool, or cool-but-flawed? Justify your opinions! Make an argument which will convince others of your opinion.}
+%% Type your text below
+
+
+\section*{Questions for the Authors}
+\textsl{Finally, imagine you're attending a talk about this paper given by one of the authors. Give at least 2 questions that you would like to ask, specific to the paper and the research it reports.}
+
+%% Type your text below
+
+\begin{itemize}
+	\item 
+	\item 
+\end{itemize}
+
+\bibliographystyle{IEEEtran}
+\footnotesize{\bibliography{week2}}
+
+\end{document}

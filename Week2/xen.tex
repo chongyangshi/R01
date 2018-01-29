@@ -29,7 +29,7 @@ I believe that the paper has the following negative features:
 \begin{itemize}
 	\item The solution was tailored towards minimising overhead on x86 systems, with some assumptions made on optimisations in modifications made on guest kernels, which may not be possible on all guest kernels or for all architectures.
 	\item It was evident that some systems were more complex to port to Xen than the authors expected, especially proprietary systems such as Windows, raising the possibility of complexity bias towards the open-source Linux.
-	\item It was demonstrated that spreading heavy multiprocessing over Xen guests results in a better performance than multiprocessing on a single Linux system. However, the same effect on Xen's alternatives at the time were not evaluated, making it uncertain whether alternative solutions could perform better than Xen in this aspect.
+	\item It was demonstrated that spreading heavy multiprocessing over Xen guests results in a better performance than multiprocessing on a single Linux system. However, the same effect on Xen's alternatives at the time were not evaluated, making it uncertain whether alternative solutions could have performed better than Xen in this aspect.
 \end{itemize}
 
 \section*{The Problem/Motivation}
@@ -63,7 +63,7 @@ Under the common context of single-processor support at the time, Xen achieved s
 
 Before main CPU manufacturers started to provide hardware virtualization support, Xen paravirtualization was the product of the time that best utilised existing architecture and hardware features to provide low-overhead virtualization. The development of fully guest isolation also led to a major shift in the primary market of virtualization -- from efficient application provisioning to the virtual machine hosting market, later coined with the term \emph{cloud}. Xen PV was the de facto standard of virtualization for these services (e.g. Amazon AWS and Linode) until Intel and AMD provided hardware virtualization support in their respective processors (VT-x \cite{uhlig2005intel} and AMD-V). 
 
-For Intel platforms, VT-x significantly reduced the need for paravirtualization by allowing the hypervisor to execute in a special root-mode underneath ring 0, on which fully-virtualised guest kernels can directly operate. The performance benefit brought by paravirtualization became outweighed by its inflexible kernel modification requirement. Xen PV has been gradually phased out, in favour of its full virtualization variant HVM, and its alternative Linux KVM \cite{graziano2011performance}.
+For Intel platforms, VT-x significantly reduced the need for paravirtualization by allowing the hypervisor to execute in a special root-mode underneath ring 0, on which fully-virtualised guest kernels can directly operate. The performance benefit brought by paravirtualization became outweighed by its inflexible kernel modification requirement. Xen PV has been gradually phased out, in favour of its full virtualization variant HVM, and its alternative Linux kvm \cite{graziano2011performance}.
 
 \section*{Questions for the Authors}
 \textsl{Finally, imagine you're attending a talk about this paper given by one of the authors. Give at least 2 questions that you would like to ask, specific to the paper and the research it reports.}
@@ -72,7 +72,7 @@ For Intel platforms, VT-x significantly reduced the need for paravirtualization 
 
 \begin{itemize}
 	\item When executing a large number of processes in individual guests, Xen achieves significantly better performance than single-system multiprocessing due to scheduling fairness and guest isolation. However, guest isolation also removes their ability to communicate efficiently through shared memory. Do you think that under this particular use case, message-passing based solutions with specialised runtime (e.g. Mirage \cite{madhavapeddy2013unikernels}) would eventually replace Xen?
-	\item What foresight in relation to the VM hosting market have you considered while designing Xen? What features of Xen do you think that enabled Xen's rapid popularisation in the hosting market, or that eventually led to Xen being phased out in favour of alternatives like KVM \cite{kivity2007kvm}?
+	\item What foresight in relation to the VM hosting market have you considered while designing Xen? What features of Xen do you think that enabled Xen's rapid popularisation in the hosting market, or that eventually led to Xen being phased out in favour of alternatives like kvm \cite{kivity2007kvm}?
 \end{itemize}
 
 \bibliographystyle{IEEEtran}
