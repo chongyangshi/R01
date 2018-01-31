@@ -12,7 +12,7 @@
 \textsl{3--5 sentences. Briefly summarise the {\bf contributions} of the paper, i.e.,~what it adds over the state of the art. Paraphrase and extract the essentials rather than simply copying chunks of text. Be objective; later sections allow for your own opinion.}
 %% Type your text below
 
-In this paper, the authors presented a thorough description of the container-based virtualization system Linux-VServer, which seeks to improve guest performance at the cost of reduced guest isolation and flexibility. Designed for use by compute farms and hosting organisations, VServer's container-based operating system (COS) isolates VMs at the system call layer, exposing the application binary interface (ABI) rather than a traditional hypervisor interface to guest systems. Resource and security isolation, as well as file system unification were implemented to achieve similar effects to that of a hypervisor. Benchmarks performed by the author found that VServer outperformed Xen in performance and achieved reasonable isolation.
+In this paper, the authors presented a thorough description of the container-based virtualization system Linux-VServer, which improves virtualised guest performance at the cost of reduced guest isolation and flexibility. Designed for use by compute farms and hosting organisations, VServer's container-based operating system (COS) isolates VMs at the system call layer, exposing the application binary interface (ABI) rather than presenting a traditional hypervisor interface to guest systems. Resource and security isolation, as well as file system unification were designed to achieve similar effects to that under a hypervisor. Benchmarks performed by the author found that VServer outperformed Xen in performance and achieved reasonable isolation.
 
 \section*{Pros and Cons}
 \textsl{6 bullets. Succinctly state three positives and three negatives of the paper.}
@@ -20,46 +20,52 @@ In this paper, the authors presented a thorough description of the container-bas
 
 I believe that the paper has the following positive features:
 \begin{itemize}
-	\item Along with performance advantages identified in VServer's design, the authors did present some shortcomings in comparison with Xen for completeness, such as increased interface complexity of COS.
-	\item Discussing the codebase, the authors evaluated both the number of lines of code \emph{and} the context of these changes (new and modified kernel files), presenting a more complete picture of the complexity of the software-engineering task.
-	\item Copy-on-write inodes was a novel idea taking full advantage of the straightforward file system offered by a COS, which is somewhat harder to achieve on file level on a hypervisor (e.g. Xen on LVM).
+	\item Along with performance advantages identified in VServer's design, the authors did objectively present some shortcomings in comparison with Xen, such as increased interface complexity in COS.
+	\item When discussing the codebase, the authors evaluated both the number of lines of code \emph{and} the natures of these changes (new and modified kernel files), presenting a more complete picture of the complexity of the software-engineering task.
+	\item Using copy-on-write inodes was a novel idea taking full advantage of the straightforward file system offered by a COS, which was somewhat harder to achieve on file level on a hypervisor (e.g. Xen on LVM).
 \end{itemize}
 
 I believe that the paper has the following negative features:
 \begin{itemize}
-	\item The argument that host VM in Xen-style hypervisors being the weakest link in fault isolation is somewhat questionable, as the large number of new and modified kernel modules in VServer are equally likely to contain bugs, in addition to a more grave concern of vulnerability in both systems.
-	\item The micro-benchmarks performed by the authors were selectively presented in the table to highlight configurations where Xen performed significantly worse, with no additional information on overall scores.
-	\item A majority of benchmarks performed did not account for a typical hypervisor/COS computation workload that would involve different guests utilising all of CPU, memory, and I/O. The only typical-like workload performed was kernel compilation, in which Xen achieved almost identical performance, drawing debate on the fairness of benchmarks.
+	\item The argument that host VM in Xen-style hypervisors being the weakest link in fault isolation is somewhat questionable, as the large number of new and modified kernel modules in VServer are equally likely to introduce bugs, notwithstanding a more grave concern of security vulnerabilities in both systems.
+	\item The micro-benchmarks performed by the authors were selectively presented in the table to highlight configurations under which Xen performed significantly worse, with no additional information on other scores.
+	\item A majority of benchmarks performed did not account for a typical hypervisor/COS computation workload that would involve different guests utilising all system resources. The only typical workload performed was kernel compilation, in which Xen achieved almost identical performance, drawing debate on the fairness of benchmarks.
 \end{itemize}
 
 \section*{The Problem/Motivation}
 \textsl{1--2 sentences per question. What is the motivation for the work, or the problem being solved? Why is it important? If there is prior art, how was it insufficient? If the problem had not previously been solved, why not?}
 %% Type your text below
 
-As a different approach to virtualization (and the definition thereof), container-based systems like VServer took a different direction in the performance-isolation tradeoff in comparison to hypervisors like Xen, whose paravirtualization variant while optimised for performance, does incur a non-negligible amount of overhead in CPU, memory, and I/O performance \cite[Sec. 4]{barham2003xen}. Container-based systems seek to alleviate this through a different design, as summarised in the next section.
+As a different approach to virtualization (and the definition thereof), container-based systems like VServer took a different direction in the performance-isolation tradeoff to hypervisors like Xen, whose paravirtualization variant while optimised for performance, does incur a non-negligible amount of overhead in CPU, memory, and I/O performance \cite[Sec. 4]{barham2003xen}. Container-based systems sought to alleviate this through a different design, as summarised in the next section.
 
-In addition, with a comprehensive set of benchmark results presented for Xen \cite[Sec. 4]{barham2003xen}, it would be useful to compare them with similar results from VServer to demonstrate the differences between the two paradigms, which will be carried out in this research.
+In addition, with a comprehensive set of benchmark results presented for Xen \cite[Sec. 4]{barham2003xen}, it would be useful to compare them with similar results from VServer to demonstrate the differences between the two paradigms, which would be carried out in this research.
 
 \section*{The Solution/Approach}
 \textsl{5--10 sentences. What have they done? How does it address the issues set out above? How is it unique and/or innovative (if, indeed, it is)? Give details, again using the paper as the source but again, not just copying text. Instead, focus on paraphrasing/synopsising, and extracting the essential details.}
 %% Type your text below
 
-Based on prior research on resource containers and security containers, the VServer COS was designed with the goal of trading isolation for efficiency. As described earlier, the approach of container-based virtualization means that both the host OS and guest systems will operate on the same kernel, exchanging the flexibility in hosting foreign-kernel guests with simplicity of interface design and system call performance. Instead of Xen PV's approach of elevating guest kernels to ring 1 and filter unsafe system operations, VServer utilises a modified kernel to isolate operating system objects created by guest systems. Token bucket-based algorithms were implemented to ensure controllability and fairness in CPU and I/O scheduling, along with abilities to limit guest memory and storage use. Filtering and emulation were used to create a per-container illusion of dedicated system to its processes. Network interfaces were not virtualised, and Chroot Barrier was used to prevent chroot escapes. Finally, a copy-on-write mechanism was used on inodes to reduce storage footprint among commonly included guest OS files.
+Based on prior research on resource containers and security containers, the VServer COS was designed under the principle of trading isolation for efficiency. As described earlier, the approach of container-based virtualization means that both the host OS and guest systems will operate on the same kernel, forgoing the flexibility to host foreign-kernel guests, but simplifying interface design and boosting system call performance. 
+
+Instead of Xen PV's approach of elevating guest kernels to ring 1 and filter unsafe system operations, VServer utilised a modified kernel to isolate operating system objects created by guest systems. Token bucket-based algorithms were implemented to ensure controllability and fairness in CPU and I/O scheduling, along with abilities to limit guest memory and storage use. Filtering and emulation were used to create a per-container illusion of dedicated system to its processes. Network interfaces were not virtualised, and Chroot Barrier was used to prevent chroot escapes. Finally, a copy-on-write mechanism was used on inodes to reduce storage footprint among commonly included guest OS files.
 
 
 \section*{Evaluation}
 \textsl{3--4 sentences. How do they evaluate their work? What questions does their evaluation set out to answer? What does their evaluation say about the strengths and weaknesses of their system? What is your opinion of the strengths and weaknesses of the evaluation itself?  Give highlights, not a point by point reproduction of the evaluation section(s). In rare cases, systems papers may not have any evaluation, in which case write `N/A' below.}
 %% Type your text below
 
-The authors attempted to present comprehensive benchmarks similar to that by the Xen paper \cite[Sec. 4]{barham2003xen}, but the results were inadvertently heavy on micro-benchmarks. Both virtualization overhead and performance under disruptive guests were evaluated. Across micro-benchmarks and macro-benchmarks, a majority of VServer's imposed overhead in CPU, memory, and I/O were found to be lesser than Xen's. Owing to limited support for hyper-threading at the time, Xen could not achieve better scaling performance than VServer under highly parallelised workload as expected. 
+The authors attempted to present comprehensive benchmarks similar to that by the Xen paper \cite[Sec. 4]{barham2003xen}, but the results were inadvertently heavy on micro-benchmarks. Both virtualization overhead and isolation performance under disruptive guests were evaluated. 
 
-Results from isolation tests showed two systems roughly on-par, although the evaluation for accurate CPU reservation seemed to favour VServer by design, as in almost all use cases there are no practical disadvantage in Xen being 5\% more off.
+Across micro-benchmarks and macro-benchmarks, a majority of VServer's overhead in CPU, memory, and I/O were found to be lesser than Xen's. Owing to limited support for hyper-threading at the time, Xen could not achieve better scaling performance than VServer under highly parallelised workload as supposed to. 
+
+Results from isolation tests showed two systems roughly on-par, although the evaluation for accurate CPU reservation seemed to favour VServer by design, as in almost all use cases there are no practical disadvantages in Xen being 5\% less accurate.
 
 \section*{Your Opinion}
 \textsl{At least 3 sentences. This is the fun part where you get to judge both the paper and the work it reports! Is the motivation convincing? The problem important? The approach a good or bad idea?  Why? Which specific things annoyed you, or you thought were cool, or cool-but-flawed? Justify your opinions! Make an argument which will convince others of your opinion.}
 %% Type your text below
 
-As a customer of virtual machine hosting for many years, container-based virtualization's ability for providers to vastly overcommitting resources caused many grievances in OpenVZ and VServer products. Despite this, I strived to be as neutral as possible in my review of this paper, which provided a very good point of reference in COS designs and VServer in particular. VServer's design has great potential in specific use cases when isolation is not of the greatest concern, such as rapidly deploying back-end servers in response to demand. In the virtual machine hosting market, VServer never really enjoyed much success compared to OpenVZ \cite{zhou2015comparison}, due to several drawbacks, including the still unvirtualised network interfaces \cite{vservernetwork}.
+As a customer of virtual machine hosting for many years, container-based virtualization providers' ability to vastly overcommitting resources created many grievances in OpenVZ and VServer products. Therefore, I strived to be as neutral as possible in my review of this paper
+
+This paper provided excellent points of reference in COS designs, and VServer in particular. VServer's design has great potential in specific use cases when isolation is not of the greatest concern, such as rapidly deploying back-end servers in response to demand. In the virtual machine hosting market, VServer never really enjoyed much success compared to OpenVZ \cite{zhou2015comparison}, due to several drawbacks, including the still unvirtualised network interfaces \cite{vservernetwork}.
 
 \section*{Questions for the Authors}
 \textsl{Finally, imagine you're attending a talk about this paper given by one of the authors. Give at least 2 questions that you would like to ask, specific to the paper and the research it reports.}
