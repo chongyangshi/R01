@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+\usepackage{a4wide,parskip}
+\usepackage{hyperref}
+\begin{document}
+
+%% Replace PAPERTITLE below with the paper title
+\title{Paper Review Form (1000 words maximum)\\
+  \emph{cs940}: Large-scale cluster management at Google with Borg \cite{verma2015large}}
+\maketitle
+
+\section*{Paper Summary}
+
+This paper describes the Borg cluster management system, which had been in use as the primary cluster manager of Google for many years at the time of publication. Borg abstracts cluster management away from the user while providing high-availability and high-parallel tasking, with a quota-based system to manage a multi-user environment. Both availability-critical production tasks and burst-workload non-production tasks can be scheduled with minimal latency through a series of scalable optimisations. Security and performance isolation are preserved on shared-task machines without hindering economically-optimal levels of utilisation. The improvements on Borg leading to the new Kubernetes solution were also discussed by the paper.
+ 
+\section*{Pros and Cons}
+
+I believe that the paper has the following positive features:
+\begin{itemize}
+	\item The introduction section is succinct and effective in summarising the features of Borg, without overstepping on the role of the related works section later.
+	\item In addition to effective numerical optimisations, user behaviours in the quota system were also taken into account during design and planning.
+	\item Implementation details were first described from the user perspective, then broken down into how different goals were achieved on the architecture level. This description method is particularly effective in describing complex systems with a range of stakeholders.
+\end{itemize}
+
+I believe that the paper has the following negative features:
+\begin{itemize}
+	\item The high task startup latency (25s) on machines without prior execution of the task can be obstructive when a sudden spike in demand requires expedited upscaling of a service.
+	\item In evaluating CPU interference, CPI was a poor choice of metric that led to inconclusive results, due to the vast number of factors influencing the metric.
+	\item Despite extensive discussions on how performance isolation has been achieved in practice, this was not backed up with quantitative evaluations on the effects of disruptive or malfunctioning clients. 
+\end{itemize}
+
+\section*{The Problem/Motivation}
+
+The extreme scale and heterogeneity of services \cite[\S 7]{verma2015large} operated by the largest internet product providers require very different cluster management strategies in comparison with the computing needs of smaller organisations. In Google's case, the lack of resource assignment and reclamation in open source solutions such as \emph{Mesos} \cite{hindman2011mesos} and \emph{YARN} \cite{vavilapalli2013apache} at the time motivated them to develop their own solution from scratch, with controller coordination handled by the lock-based Chubby \cite{burrows2006chubby}. Other solutions were also in lack of support for disparate workloads \cite{schwarzkopf2013omega} or high resource dimensions \cite{boutin2014apollo}.
+
+\section*{The Solution/Approach}
+
+Borg separates user workloads into two classes: availability-critical \emph{prod} jobs, and opportunistic \emph{non-prod} jobs that are usually batched, with control strategies designed accordingly. Available computing machines are arranged in ``cells'' each controlled by replicated \emph{Borgmaster} processes, which in turn coordinate \emph{Borglet} agents on each machine. This control architecture enforces resource reservation and quota from users, and manages the admission, scheduling, monitoring and debugging access of tasks initiated by each user job. Task placement and scheduling are optimised towards both high resource utilisation and preserving headroom redundancy to ensure availability and minimal latency of \emph{prod} jobs. Container-based security and performance isolation are used to allow task cohabitation on each system, instead of more application-specialised isolation solutions such as Unikernels \cite{madhavapeddy2013unikernels}. Better grouping mechanisms and user accessibility are being implemented for Kubernetes, which is an open-source successor to Borg.
+
+
+\section*{Evaluation}
+
+Owing to the scale of deployment, it was not possible for the authors to conduct an evaluation with live workloads. Therefore, snapshots of states from a small number of cells were replayed with the accompanied debugging simulator to evaluate the performance of Borg. Evaluation of availability demonstrated that high availability was achieved for \emph{prod} jobs, with runtime incidents mitigated successfully for both types of jobs. The cell compaction criteria was used to evaluate the utilisation under Borg, through which -- despite the inconclusiveness of CPI-based metrics -- the authors showed that Borg achieved an economically-optimal utilisation while leaving sufficient expansion headroom for \emph{prod} jobs. The choice of cell size, and Borg's handling of resource requests and reclamation were also shown to be effective. However, performance aspects of Borg's isolation were evaluated through practical observations only.
+
+\section*{Your Opinion}
+
+Through Borg, an one-size-fits-all solution for cluster management was achieved, albeit specifically designed for Google's needs. There is probably no other workload (nor the amount of computing power) in the world that can be used to evaluate Borg under live conditions, which resulted in limitations on the authors' evaluation methodology. It is also not possible to evaluate the suitability of deploying Borg for other organisations' computation workloads due to its closed-source nature. Therefore, the applicability of research published by this paper may be very limited. However, it was a huge step up for Google to publish how they designed their systems to enable the scale of availability and parallelism they achieved, which supplied many good ideas for implementing more powerful and universal open-source cluster management systems.
+
+\section*{Questions for the Authors}
+
+\begin{itemize}
+	\item Borg avoided the use of virtualisation due to the lack of hardware virtualisation support at the time of design. With the general availability of virtualisation support in today's hardware, did the new Kubernetes take advantage of the improved security and performance isolation virtualisation offers, and why?
+	\item Borg gives heavy priority to \emph{prod} tasks to ensure their availability. In the event of malfunctioning code in \emph{prod} tasks causing disruptions to other tasks running in the same cell, what facilities are available in Borg to mitigate these disruptions?
+\end{itemize}
+
+\bibliographystyle{IEEEtran}
+\footnotesize{\bibliography{week4}}
+
+\end{document}
