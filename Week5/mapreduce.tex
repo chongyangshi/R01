@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage{a4wide,parskip}
+\usepackage{hyperref}
+\begin{document}
+
+%% Replace PAPERTITLE below with the paper title
+\title{Paper Review Form (1000 words maximum)\\
+  \emph{cs940}: MapReduce: Simplified Data Processing on Large Clusters \cite{dean2008mapreduce}}
+\maketitle
+
+\section*{Paper Summary}
+This paper reports the design and implementation of Google's MapReduce programming model, which was one of the first generalised task models facilitating highly-parallelised batch data processing. Abstracting common data processing tasks into combinations of \emph{map} and \emph{reduce} operations -- along with additional functionalities and optimisations -- the implemented computation system allowed programmers to trivially create parallelised tasks scaling for a few thousand machines. The performance of the system was demonstrated through representative live benchmarks. Extensive redundancies and fault handling features built into the implementation were also tested during evaluations. 
+
+\section*{Pros and Cons}
+
+I believe that the paper has the following positive features:
+\begin{itemize}
+	\item The relatively simple \emph{map} and \emph{reduce} model bears such great descriptive power that some operations only require half of the model to implement, such as distributed grep.
+	\item The use of backup executions close to the completion of an operation substantially reduces expected execution time through preemptively addressing straggling distributed tasks, despite adding to the overall workload. This resolved a long-standing difficulty in distributed computing.
+	\item The benchmarks performed adequately demonstrated the effects of additional optimisations such as data locality, without having to perform specific and complex operations.
+\end{itemize}
+
+I believe that the paper has the following negative features:
+\begin{itemize}
+	\item Despite providing ordering guarantee within a partition, rows of input data must still be uncorrelated overall, as any correlation information is not guaranteed to be preserved during partitioning.
+	\item Unlike the successor Borg \cite{verma2015large}, MapReduce implementation's master processes are not redundant, and in practice require workers to fully abort on encountering master failures. The assumption that single masters are unlikely to fail became untenable in Borg, and led to the introduction of consensus-backed replications.
+	\item During evaluations on fault-tolerance, only machine task processes were killed, with no hardware failures simulated -- which in fact are a common occurrence in large scale deployments.
+\end{itemize}
+
+\section*{The Problem/Motivation}
+
+Even in 2004, commercial operations often required data processing at a large scale, which could only be achieved through extensive parallelisation of tasks. Implementing explicit parallelism in individual programs would involve large amounts of repetitive and non-generalisable work, therefore a common parallel programming model or framework was required to abstract away low level details. Existing solutions included parallel prefix computations \cite{gorlatch1996systematic} which lacked flexibility and fault-tolerance at scale; Bulk Synchronous Programming \cite{valiant1990bridging} which lacked sufficient parallelisation automation due to a less restricted model; and eager scheduling systems like Charlotte \cite{baratloo1999charlotte} which lacked automated failure avoidance mechanisms. Therefore, MapReduce was built and customised to Google's needs.
+
+\section*{The Solution/Approach}
+
+The design goal of MapReduce was to abstract away implementations of parallelisation, fault-tolerance, partitioning, and loading balancing, allowing the user to easily transform their existing programs into simple computation processes with inputs and outputs matching the key-value structures of \emph{map} (performs intermediate pairing) and \emph{reduce} (merges pairs). Input data can then be partitioned and executed by individual task instances on clustered machines, which are managed in a master-slave configuration. 
+
+The master performs bookkeeping and information passing for workers on individual machines, and is not redundant. Failures of workers on individual machines are handled through automatic rescheduling, which works comparatively better for operations with deterministic functions. Data locality is used to improve performance and reduce network congestion, along with fine task granularity and the use of backup tasks to improve scheduling performance. 
+
+Refinements such as partitioning functions, customisable types, local executions and human-readable real time information reduce the complexities of programming and debugging MapReduce tasks, improving usability. MapReduce was able to carry the vast majority of Google's data processing tasks at the time.
+
+\section*{Evaluation}
+
+Unlike the offline evaluation for the successor system Borg \cite{verma2015large}, the authors were able to conduct live evaluations of a full-scale deployment of 1800 machines during system idle times on a weekend. Two types of operations were performed: \emph{grep} of an uncommon pattern in large quantities of text, and sorting of large, ordered data. The authors claimed that the operations were representative of most tasks designed to be performed through MapReduce. 
+
+Both operations were completed by the cluster within very short amount of time, demonstrating limited parallel overhead. Effects of optimisations such as partitioning, data shuffling, and backup tasks were analysed and showed to have a positive impact on performance. Fault-tolerance was tested through injecting process failures on machines, showing minimal overhead; while effects of hardware failures were not tested. The implementation's success in commercial operation was also illustrated with quantitative figures.
+
+\section*{Your Opinion}
+
+Many features of MapReduce were very innovative at the time of the publication, such as a common abstraction of data processing functionalities, automatic avoidance of bug-related faults in distributed computing, and preemptive straggler handling. High performance parallel computing achieved through these features allowed technology companies to process an ever greater amount of data, which has become one of the most valuable assets in this industry today. Fault-tolerance of master processes in distributed computing were of less concern then than they are now, which have been achieved through consensus systems and master-replication, such as in Yahoo's ZooKeeper \cite{hunt2010zookeeper} and Google's own Chubby \cite{burrows2006chubby}. With hardware improvements slowing down, how data processing can be further upscaled against demand in the future remains to be seen.
+
+\section*{Questions for the Authors}
+
+\begin{itemize}
+	\item MapReduce no doubt laid many foundations for the design of Borg, which provides a more generalised distributed computing scheduling system. What lessons learned from implementing MapReduce went into the design of Borg?
+	\item With distributed computing systems increasingly specialised for individual organisations' needs, it becomes harder and harder to find idle times to evaluate a system in full scale as conducted for MapReduce's implementation. What alternative methods do you think would be effective in evaluating distributed computing systems from a limited perspective?
+\end{itemize}
+
+\bibliographystyle{IEEEtran}
+\footnotesize{\bibliography{week5}}
+
+\end{document}
