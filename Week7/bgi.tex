@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage{a4wide,parskip}
+\usepackage{hyperref}
+\begin{document}
+
+%% Replace PAPERTITLE below with the paper title
+\title{Paper Review Form (1000 words maximum)\\
+  \emph{cs940}: Fast Byte-Granularity Software Fault Isolation \cite{castro2009fast}}
+\maketitle
+
+\section*{Paper Summary}
+
+The Byte-Granularity Isolation (BGI) compiler was designed to provide low-overhead fault isolation for Windows kernel extensions, which operate in trusted kernel space but can cause serious system faults on malfunction. BGI resolved severe performance penalties in prior kernel extension isolation solutions by implementing fine-grained runtime byte-level verification of virtual memory accesses. Code insertion through a compiler extension, as well as a runtime interposition library were used to provide full isolation coverage within BGI's protection scope. Evaluations of BGI demonstrated its high efficiency, ability to prevent some faults outside the protection scope, as well as its practical bug finding capabilities.
+
+\section*{Pros and Cons}
+
+I believe that the paper has the following positive features:
+\begin{itemize}
+	\item The use of various extension code examples enabled clear and effective illustration of BGI's interactions between the compiler, the interposition library, and the target extension code.
+	\item Low-level optimisations of table accesses utilised peephole optimisation and data parallelism commonly seen in general purpose compiler designs, demonstrating the wide applicability of these ideas.
+	\item In addition to providing runtime fault isolation as its primary purpose, BGI's bug finding capabilities through static code analysis demonstrated significant potential as an engineering utility for kernel extension developers.
+\end{itemize}
+
+I believe that the paper has the following negative features:
+\begin{itemize}
+	\item Kernel extensions ultimately interact very frequently with the kernel, as noted by the authors. Despite having vastly improved upon prior researches, BGI's 6.4\% to 16\% overhead can still be deemed unacceptable for kernel extensions driving performance-critical devices. Although its bug finding capabilities can help the developer to eliminate some bugs instead.
+	\item As a tool focused on practicality, BGI's reduced performance when transforming other compilers' binaries implied that it may be necessary for kernel extension developers to replace the original compiler in their toolchain, which may be difficult to achieve for highly customised toolchains. 
+	\item A wide range of assumptions (e.g. number of untrusted domains supported) and optimisations (e.g. x64-specific byte handling changes) were specific to Windows or architecture, limiting BGI's adaptability to other platforms. 
+\end{itemize}
+
+\section*{The Problem/Motivation}
+
+Modern operating systems interface with a wide range of devices, most of which require kernel extensions running under considerable privileges and accesses, as it would be impractical performance-wise to enforce user-mode checks on these modules. However, due to quality variances in these extensions supplied by device manufacturers, they have become a constant source of poor system reliability. Existing solutions such as fault containment \cite{erlingsson2006xfi}, user-mode drivers \cite{forin1991system}, code annotations \cite{ganapathy2008design}, or even rewriting kernels in type-safe languages \cite{necula2002ccured} suffered from severe kernel overheads or involved significant re-implementation effort, and were thus deemed impractical by the authors. The authors instead sought to leverage architecture and platform features of Windows on x86/x64 to implement an optimised low-level fault isolation system, and excluded malicious extension code \cite{wahbe1994efficient} from the threat model.
+
+\section*{The Solution/Approach}
+
+BGI includes two components: a compiler extension to automatically insert runtime virtual memory access verification into the code, and an interposition library to provide runtime access verification capabilities.  Access rights subject to verification include read, write, function call pointer accesses (for control flow integrity) and kernel object typing accesses (for dynamic type safety and interface use correctness).  Kernel extensions are organised into either trusted (exempt from BGI control) or untrusted domains, with the ability to include multiple associated extensions within one domain. Access rights of untrusted kernel extensions are governed through access control lists (ACLs) assigned to 8-byte blocks of virtual memory, with memory footprint reduced through optimisations focused on compact storage and architecture-leveraged reductions in access. Runtime checks against ACLs are carried out by wrappers in the interposition library, with check failures triggering extension suspension to protect the wider system. A prototype ``turn-it-off-and-on'' fault recovery mechanism is also provided. BGI does not prevent malicious kernel extensions from reading sensitive kernel memory, as checking reads would have generated excessive overhead. The lack of synchronisation in fast path access right checks due to performance considerations also makes BGI x86/x64 to attacks exploiting race conditions.
+
+\section*{Evaluation}
+
+The authors evaluated three aspects of BGI's capabilities: providing strong kernel extension isolation assurances; generating acceptable performance overheads; and finding bugs in real kernel extension code. In evaluating isolation assurances, the authors injected commonly found bugs into two common kernel extensions (FAT external file system driver and Intel PRO ethernet driver), achieving 98\%-100\% isolation of external ``blue screen'' faults, as well as 47\%-60\% isolation of hang kernel faults, which BGI was not designed to isolate, but managed to regardless due to associated runtime symptoms. Just under half of simulated faults were successfully recovered through the prototype recovery mechanism. During performance evaluations, PostMark benchmarking of CPU and I/O performance observed 10\%-12\% overhead in BGI, significantly outperforming the predecessor Nooks \cite{swift2003improving}. BGI's networking tests also showed a comparable or better performance than the predecessor SafeDrive \cite{zhou2006safedrive}. Finally, during integration testing, BGI identified 28 bugs in widely used kernel extensions later fixed under responsible disclosure, demonstrating its practical effectiveness in this aspect. Evaluations conducted were comprehensive and practical.
+
+\section*{Your Opinion}
+
+By avoiding additional work for kernel extension developers (beyond integrating a new compiler into their toolchains), BGI was implemented as a highly-usable replacement solution for protecting reliability-critical systems interfacing third party devices. However, in achieving a low overhead, its design decisions sacrificed the solution's compatibility with other platforms. From Microsoft's point of view, this was well justified in 2009. However, this idea also had great  re-engineering  potential for other kernels and hardware architectures. 
+
+Race conditions in runtime access right verification were later proved to be more likely than the authors anticipated, as demonstrated in a serious iOS race condition-triggered use-after-free bug \cite{ianbeer} in 2016, enabling an iOS jailbreak.
+
+\section*{Questions for the Authors}
+
+\begin{itemize}
+	\item While a lot of features and optimisations of BGI were specific to Windows and x64, with Window's extension to ARM platforms, has BGI been adapted for kernel extension fault isolation on ARM architectures?
+	\item Due to the emergence of race condition exploits for circumventing memory access verifications, has there been a rethink in the approach to synchronisation in BGI operations with serious performance impact?
+\end{itemize}
+
+\bibliographystyle{IEEEtran}
+\footnotesize{\bibliography{week7}}
+
+\end{document}
